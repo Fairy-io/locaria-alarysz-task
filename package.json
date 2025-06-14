@@ -13,7 +13,10 @@
     "dependencies": {
         "@elysiajs/swagger": "^1.2.0",
         "@sinclair/typebox": "^0.34.13",
-        "elysia": "1.1.26"
+        "elysia": "1.1.26",
+        "ky": "^1.8.1",
+        "vitest": "^3.2.3",
+        "zod": "^3.25.64"
     },
     "devDependencies": {
         "bun-types": "latest",
