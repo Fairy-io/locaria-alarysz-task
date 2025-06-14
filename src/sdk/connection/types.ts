@@ -3,6 +3,8 @@ import { KyInstance } from 'ky';
 import { ExecuteArgs } from '../types/ExecuteArgs';
 import { Action } from '../actions';
 import { Transaction } from '../transaction';
+import { Result } from '../result';
+import { InferErrorMap } from '../types/InferErrorMap';
 
 type Data<T extends z.ZodObject<any> | undefined> =
     T extends z.ZodObject<any> ? z.infer<T> : void;
@@ -22,6 +24,7 @@ export type ConnectionFunction = {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE';
     expectedResponse: z.ZodObject<any> | z.ZodVoid;
     expectedData?: z.ZodObject<any>;
+    errorMap?: { [key: string]: z.ZodObject<any> };
     action?: ConnectionAction<
         Data<ConnectionFunction['expectedData']>
     >;
@@ -42,7 +45,14 @@ type ExpectedData<
 type ExpectedResponse<
     T extends ConnectionOptions,
     K extends keyof T['functions'],
-> = z.infer<T['functions'][K]['expectedResponse']>;
+> = T['functions'][K]['errorMap'] extends {
+    [key: string]: z.ZodObject<any>;
+}
+    ? Result<
+          InferErrorMap<T['functions'][K]['errorMap']>,
+          z.infer<T['functions'][K]['expectedResponse']>
+      >
+    : z.infer<T['functions'][K]['expectedResponse']>;
 
 export type Connection<T extends ConnectionOptions> = {
     [key in keyof T['functions']]: (

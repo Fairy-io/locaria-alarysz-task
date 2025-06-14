@@ -6,28 +6,35 @@ import { Transaction } from '../transaction';
 
 const makeGetCall =
     (ky: KyInstance): CallFuction =>
-    (endpoint, searchParams) =>
-        ky.get(endpoint, { searchParams }).json();
+    async (endpoint, searchParams) => {
+        const response = await ky.get(endpoint, {
+            searchParams,
+        });
+
+        return response.json();
+    };
 
 const makePostCall =
     (ky: KyInstance): CallFuction =>
-    (endpoint, searchParams, data) =>
-        ky
-            .post(endpoint, {
-                json: data,
-                searchParams,
-            })
-            .json();
+    async (endpoint, searchParams, data) => {
+        const response = await ky.post(endpoint, {
+            json: data,
+            searchParams,
+        });
+
+        return response.json();
+    };
 
 const makePutCall =
     (ky: KyInstance): CallFuction =>
-    (endpoint, searchParams, data) =>
-        ky
-            .put(endpoint, {
-                json: data,
-                searchParams,
-            })
-            .json();
+    async (endpoint, searchParams, data) => {
+        const response = await ky.put(endpoint, {
+            json: data,
+            searchParams,
+        });
+
+        return response.json();
+    };
 
 const makeDeleteCall =
     (ky: KyInstance): CallFuction =>
@@ -52,8 +59,8 @@ const makeActionCall =
         >,
         transaction?: Transaction,
     ): CallFuction =>
-    (endpoint, searchParams, data) =>
-        Action.execute(
+    async (endpoint, searchParams, data) => {
+        const response = await Action.execute(
             action,
             {
                 ky,
@@ -63,6 +70,9 @@ const makeActionCall =
             },
             transaction,
         );
+
+        return response;
+    };
 
 export const makeCall = (
     ky: KyInstance,

@@ -1,3 +1,5 @@
+import { HTTPError } from 'ky';
+import { Result } from '../result';
 import { Transaction } from '../transaction';
 import { isTransaction } from '../types/isTransaction';
 import { ConnectionOptions } from './types';
@@ -6,6 +8,26 @@ type Connection = Record<
     string,
     (data?: any) => Promise<any>
 >;
+
+const parseJsonError = (
+    errorData: any,
+    errorMap: ConnectionOptions['functions'][string]['errorMap'],
+) => {
+    if (!errorMap) {
+        return;
+    }
+
+    for (const [key, schema] of Object.entries(errorMap)) {
+        try {
+            const parsedError = schema.parse(errorData);
+            const result = new Result();
+            result.error(key, parsedError);
+            return result;
+        } catch {
+            continue;
+        }
+    }
+};
 
 const handler = (
     functions: ConnectionOptions['functions'],
@@ -29,8 +51,11 @@ const handler = (
                 data?: any,
                 transaction?: Transaction,
             ) => {
-                const { expectedResponse, expectedData } =
-                    functions[key];
+                const {
+                    expectedResponse,
+                    expectedData,
+                    errorMap,
+                } = functions[key];
 
                 const parsedData =
                     data && expectedData
@@ -61,12 +86,53 @@ const handler = (
                     );
                 }
 
-                const response = await value(
-                    requestData,
-                    requestTransaction,
-                );
+                try {
+                    const response = await value(
+                        requestData,
+                        requestTransaction,
+                    );
 
-                return expectedResponse.parse(response);
+                    if (response instanceof Result) {
+                        return response;
+                    }
+
+                    const parsedResponse =
+                        expectedResponse.parse(response);
+
+                    if (errorMap) {
+                        const result = new Result();
+
+                        result.ok(parsedResponse);
+
+                        return result;
+                    }
+
+                    return parsedResponse;
+                } catch (error) {
+                    if (
+                        errorMap &&
+                        error instanceof HTTPError
+                    ) {
+                        const errorData =
+                            await error.response.json();
+
+                        const parsedErrorResult =
+                            parseJsonError(
+                                errorData,
+                                errorMap,
+                            );
+
+                        if (parsedErrorResult) {
+                            return parsedErrorResult;
+                        }
+
+                        throw new Error(
+                            JSON.stringify(errorData),
+                        );
+                    }
+
+                    throw error;
+                }
             };
 
             target[key] = new Proxy(fn, {
