@@ -1,0 +1,24 @@
+{
+    "name": "app",
+    "version": "1.0.50",
+    "scripts": {
+        "dev": "bun run --watch src/index.ts",
+        "containerize": "docker build --target prod --tag elysia_app:latest .",
+        "deploy": "bun scripts/deploy/index.ts",
+        "tests": "bun test ./tests/*.spec.ts",
+        "tests:watch": "bun test --watch ./tests/*.spec.ts",
+        "e2e": "bun scripts/is_e2e_disabled/index.ts || bun test ./tests_e2e/*.e2e.spec.ts",
+        "e2e:watch": "bun test --watch ./tests_e2e/*.e2e.spec.ts"
+    },
+    "dependencies": {
+        "@elysiajs/swagger": "^1.2.0",
+        "@sinclair/typebox": "^0.34.13",
+        "elysia": "1.1.26"
+    },
+    "devDependencies": {
+        "bun-types": "latest",
+        "github-api": "^3.4.0",
+        "yaml": "^2.6.1"
+    },
+    "module": "src/index.js"
+}
