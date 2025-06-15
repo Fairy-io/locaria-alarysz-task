@@ -6,16 +6,19 @@ import {
     it,
 } from 'bun:test';
 import { createApp } from '../src/createApp';
-import { ConfigProviderMock } from './mocks/config.provider';
+import { ConfigProvider } from '../src/providers';
+import { inject } from '../src/plugins/di';
+import { Mocked } from '../src/sdk/di';
+import { vi } from 'vitest';
 
 describe('GET /info', () => {
     let app: ReturnType<typeof createApp>;
-    let configProvider: ConfigProviderMock;
+    let configProvider: Mocked<ConfigProvider>;
 
     beforeAll(() => {
-        configProvider = new ConfigProviderMock();
+        configProvider = inject('ConfigProvider', vi.fn);
 
-        app = createApp({ ConfigProvider: configProvider });
+        app = createApp();
     });
 
     afterEach(() => {
@@ -23,9 +26,13 @@ describe('GET /info', () => {
     });
 
     it('returns environment variable', async () => {
-        configProvider.getConfig.mockReturnValue(
-            Promise.resolve({ SERVICE_ENV: 'test' }),
-        );
+        configProvider.getConfig.mockResolvedValue({
+            PORT: 0,
+            SERVICE_NAME: 'Test service',
+            SERVICE_VERSION: '1.0.0',
+            SERVICE_DESCRIPTION: 'Test description',
+            SERVICE_ENV: 'test',
+        });
 
         const { response, status } = await app
             .handle(
@@ -39,6 +46,9 @@ describe('GET /info', () => {
             }));
 
         expect(response).toEqual({
+            serviceName: 'Test service',
+            serviceVersion: '1.0.0',
+            serviceDescription: 'Test description',
             environment: 'test',
         });
 

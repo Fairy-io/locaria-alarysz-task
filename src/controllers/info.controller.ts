@@ -18,6 +18,10 @@ export const InfoController = new Elysia({
 
             return send('OK', {
                 environment: config.SERVICE_ENV,
+                serviceName: config.SERVICE_NAME,
+                serviceVersion: config.SERVICE_VERSION,
+                serviceDescription:
+                    config.SERVICE_DESCRIPTION,
             });
         },
         {

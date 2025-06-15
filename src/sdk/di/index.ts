@@ -6,7 +6,7 @@ type FunctionPropertyNames<T> = {
         : never;
 }[keyof T];
 
-type Mocked<T = Record<string, any>> = {
+export type Mocked<T = Record<string, any>> = {
     [K in FunctionPropertyNames<T>]: T[K] extends (
         ...args: any[]
     ) => any

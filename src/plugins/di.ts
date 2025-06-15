@@ -1,18 +1,10 @@
 import { Elysia } from 'elysia';
-import { DiStore } from '../createApp';
+import { provide } from '../sdk/di';
+import { ConfigProvider } from '../providers';
 
-export const di = (di: Partial<DiStore> = {}) =>
-    new Elysia({ name: 'di' }).decorate(
-        'inject',
-        <T extends keyof typeof di>(key: T): DiStore[T] => {
-            const value = di[key];
+export const inject = provide({
+    ConfigProvider: new ConfigProvider(),
+});
 
-            if (!value) {
-                throw new Error(
-                    `Dependency ${key} not found`,
-                );
-            }
-
-            return value;
-        },
-    );
+export const di = () =>
+    new Elysia({ name: 'di' }).decorate('inject', inject);
