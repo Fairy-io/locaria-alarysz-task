@@ -101,9 +101,7 @@ const handler = (
 
                     if (errorMap) {
                         const result = new Result();
-
                         result.ok(parsedResponse);
-
                         return result;
                     }
 
@@ -139,7 +137,12 @@ const handler = (
                 get(_, functionProp) {
                     const value = values[key];
 
-                    return value[functionProp.toString()];
+                    const result =
+                        value[functionProp.toString()];
+
+                    return typeof result === 'function'
+                        ? result.bind(value)
+                        : result;
                 },
             });
 

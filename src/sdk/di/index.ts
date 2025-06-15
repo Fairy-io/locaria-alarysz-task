@@ -43,8 +43,6 @@ export const provide = <T extends Record<string, any>>(
             return value;
         }
 
-        // Create a mock version of the service
-        const mock = mockFn();
         const properties = [
             ...Object.getOwnPropertyNames(
                 Object.getPrototypeOf(value),
@@ -70,7 +68,8 @@ export const provide = <T extends Record<string, any>>(
                     'toLocaleString',
                 ].includes(methodKey)
             ) {
-                value[methodKey] = mock;
+                // Create a new mock instance for each method
+                value[methodKey] = mockFn();
             }
         });
 
