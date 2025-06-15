@@ -31,10 +31,7 @@ export const GetOrderJobsSchema = z.object({
         z.object({
             job_id: z.string(),
             status: z.string(),
-            completion_date: z
-                .string()
-                .optional()
-                .nullable(),
+            completion_date: z.string().optional(),
         }),
     ),
 });
