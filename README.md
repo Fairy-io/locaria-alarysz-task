@@ -83,6 +83,98 @@ Retrieves aggregated customer data from both FINANCERO and ODERINO systems.
 }
 ```
 
+#### Partial Failure Handling
+
+The API implements graceful degradation when some data sources are unavailable. In such cases, the response will include error information for the failed components while still returning available data. For example:
+
+```json
+{
+    "customer_id": "12345",
+    "company_name": "ABC Corp",
+    "address": {
+        "street": "123 Main St",
+        "city": "New York",
+        "state": "NY",
+        "zip": "10001",
+        "country": "USA"
+    },
+    "billing_info": {
+        "error": true,
+        "code": "NOT_FOUND",
+        "details": {
+            "id": "12345",
+            "type": "billing"
+        }
+    },
+    "invoices": {
+        "error": true,
+        "code": "NOT_FOUND",
+        "details": {
+            "id": "12345",
+            "type": "invoices"
+        }
+    },
+    "orders": [
+        {
+            "order_id": "ORD-001",
+            "status": "Delivered",
+            "order_date": "2024-11-01",
+            "total_value": 2000,
+            "currency": "USD",
+            "vendor": "Vendor A",
+            "jobs": [
+                {
+                    "job_id": "JOB-001",
+                    "status": "Completed",
+                    "completion_date": "2024-11-05"
+                }
+            ],
+            "delivery": {
+                "delivery_status": "Delivered",
+                "delivery_date": "2024-11-10",
+                "tracking_number": "TRK123456789",
+                "carrier": "DHL"
+            }
+        },
+        {
+            "order_id": "ORD-002",
+            "status": "In Progress",
+            "order_date": "2024-11-05",
+            "total_value": 5000,
+            "currency": "USD",
+            "vendor": "Vendor B",
+            "jobs": {
+                "error": true,
+                "code": "NOT_FOUND",
+                "details": {
+                    "id": "ORD-002",
+                    "type": "jobs"
+                }
+            },
+            "delivery": {
+                "error": true,
+                "code": "NOT_FOUND",
+                "details": {
+                    "id": "ORD-002",
+                    "type": "delivery"
+                }
+            }
+        }
+    ]
+}
+```
+
+#### Caching
+
+The API implements a simple in-memory caching mechanism for customer summaries. The current implementation:
+
+-   Caches customer summaries in memory
+-   Uses customer_id as the cache key
+-   Has no expiration or invalidation mechanism
+-   Persists for the lifetime of the application instance
+
+Note: This is a basic implementation that will be improved in future versions. See the Future Improvements section for planned caching enhancements.
+
 ## 🛠️ Technical Stack
 
 -   **Language**: TypeScript
@@ -215,6 +307,7 @@ Given more time and resources, here are the planned improvements:
 
     - Migrate from in-memory to Redis
     - Implement cache invalidation
+    - Implement cache expiry
 
 5. **Security Enhancements**
 
