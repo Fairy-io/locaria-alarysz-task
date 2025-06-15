@@ -12,13 +12,7 @@ const configSchema = t.Object({
 
 type Config = Required<typeof configSchema.static>;
 
-export interface ConfigProviderInterface {
-    getConfig(): Promise<Config>;
-}
-
-export class ConfigProvider
-    implements ConfigProviderInterface
-{
+export class ConfigProvider {
     async getConfig(): Promise<Config> {
         const config = validateObject(
             parseIntObject({
