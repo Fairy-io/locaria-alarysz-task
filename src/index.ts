@@ -10,7 +10,7 @@ const {
     PORT,
 } = await configProvider.getConfig();
 
-const app = createApp({ ConfigProvider: configProvider });
+const app = createApp();
 
 app.use(
     swagger({

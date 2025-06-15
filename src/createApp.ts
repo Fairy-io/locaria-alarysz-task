@@ -1,6 +1,9 @@
 import { Elysia } from 'elysia';
 import { onError } from './onError';
-import { InfoController } from './controllers';
+import {
+    InfoController,
+    SummaryController,
+} from './controllers';
 import { di } from './plugins/di';
 
 export const createApp = () => {
@@ -8,5 +11,6 @@ export const createApp = () => {
         .use(onError)
         .use(di())
 
-        .use(InfoController);
+        .use(InfoController)
+        .use(SummaryController);
 };
