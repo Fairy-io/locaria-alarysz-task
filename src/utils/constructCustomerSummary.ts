@@ -3,6 +3,7 @@ import {
     FinanceroProvider,
 } from '../providers';
 import { NotFoundErrorSchema } from '../models/api/response';
+import { CustomerSummarySchema } from '../models/api/response/customerSummary.model';
 
 type FinProvider = ReturnType<typeof FinanceroProvider>;
 type OderProvider = ReturnType<typeof OderinoProvider>;
@@ -207,40 +208,57 @@ const getCustomerOrders = async (
     return orders;
 };
 
-export const constructCustomerSummary = async (
-    customer_id: string,
-    financeroProvider: FinProvider,
-    oderinoProvider: OderProvider,
-) => {
-    const customerAddress = await getCustomerAddress(
-        customer_id,
-        financeroProvider,
-    );
+export const constructCustomerSummary = () => {
+    const customerSummaryCache = new Map<
+        string,
+        typeof CustomerSummarySchema.static
+    >();
 
-    if (!customerAddress) {
-        return null;
-    }
+    return async (
+        customer_id: string,
+        financeroProvider: FinProvider,
+        oderinoProvider: OderProvider,
+    ) => {
+        const cacheKey = customer_id;
+        const cached = customerSummaryCache.get(cacheKey);
 
-    const customerBillingInfo =
-        await getCustomerBillingInfo(
+        if (cached) {
+            return cached;
+        }
+
+        const customerAddress = await getCustomerAddress(
             customer_id,
             financeroProvider,
         );
 
-    const customerInvoices = await getCustomerInvoices(
-        customer_id,
-        financeroProvider,
-    );
+        if (!customerAddress) {
+            return null;
+        }
 
-    const customerOrders = await getCustomerOrders(
-        customer_id,
-        oderinoProvider,
-    );
+        const customerBillingInfo =
+            await getCustomerBillingInfo(
+                customer_id,
+                financeroProvider,
+            );
 
-    return {
-        ...customerAddress,
-        billing_info: customerBillingInfo,
-        invoices: customerInvoices,
-        orders: customerOrders,
+        const customerInvoices = await getCustomerInvoices(
+            customer_id,
+            financeroProvider,
+        );
+
+        const customerOrders = await getCustomerOrders(
+            customer_id,
+            oderinoProvider,
+        );
+
+        const summary = {
+            ...customerAddress,
+            billing_info: customerBillingInfo,
+            invoices: customerInvoices,
+            orders: customerOrders,
+        };
+
+        customerSummaryCache.set(cacheKey, summary);
+        return summary;
     };
 };

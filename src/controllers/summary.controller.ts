@@ -23,7 +23,7 @@ export const SummaryController = new Elysia({
             );
 
             const customerSummary =
-                await constructCustomerSummary(
+                await constructCustomerSummary()(
                     params.customer_id,
                     financeroProvider,
                     oderinoProvider,
