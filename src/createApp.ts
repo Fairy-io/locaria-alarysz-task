@@ -4,12 +4,14 @@ import {
     InfoController,
     SummaryController,
 } from './controllers';
-import { di } from './plugins/di';
+import { di, createInject } from './plugins/di';
 
-export const createApp = () => {
+export const createApp = (
+    inject: ReturnType<typeof createInject>,
+) => {
     return new Elysia()
         .use(onError)
-        .use(di())
+        .use(di(inject))
 
         .use(InfoController)
         .use(SummaryController);

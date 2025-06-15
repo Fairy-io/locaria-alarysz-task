@@ -9,7 +9,7 @@ import {
     VoidSchema,
 } from './models/api/response';
 import { auth } from './auth';
-import { di } from './plugins/di';
+import { createInject, di } from './plugins/di';
 
 export const ElysiaCommon = new Elysia({
     name: 'common',
@@ -18,5 +18,5 @@ export const ElysiaCommon = new Elysia({
     .model('InvalidPayload', InvalidPayloadSchema)
     .model('Unauthorized', UnauthorizedSchema)
 
-    .use(di())
+    .use(di(createInject()))
     .use(auth);

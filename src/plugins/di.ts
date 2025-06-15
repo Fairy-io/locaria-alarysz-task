@@ -1,12 +1,34 @@
 import { Elysia } from 'elysia';
 import { provide } from '../sdk/di';
-import { ConfigProvider } from '../providers';
+import {
+    ConfigProvider,
+    FinanceroProvider,
+    OderinoProvider,
+} from '../providers';
 
-const configProvider = new ConfigProvider();
+export const createInject = () => {
+    const configProvider = new ConfigProvider();
 
-export const inject = provide({
-    ConfigProvider: configProvider,
-});
+    const financeroProvider = FinanceroProvider(
+        'https://locaria-alarysz-fin-dev.magicfe.net',
+    );
 
-export const di = () =>
-    new Elysia({ name: 'di' }).decorate('inject', inject);
+    const oderinoProvider = OderinoProvider(
+        'https://locaria-alarysz-ode-dev.magicfe.net',
+    );
+
+    return provide({
+        ConfigProvider: configProvider,
+        FinanceroProvider: financeroProvider,
+        OderinoProvider: oderinoProvider,
+    });
+};
+
+export const di = (
+    inject: ReturnType<typeof createInject>,
+) => {
+    return new Elysia({ name: 'di' }).decorate(
+        'inject',
+        inject,
+    );
+};

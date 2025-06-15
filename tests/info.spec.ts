@@ -7,7 +7,7 @@ import {
 } from 'bun:test';
 import { createApp } from '../src/createApp';
 import { ConfigProvider } from '../src/providers';
-import { inject } from '../src/plugins/di';
+import { createInject } from '../src/plugins/di';
 import { Mocked } from '../src/sdk/di';
 import { vi } from 'vitest';
 
@@ -16,9 +16,11 @@ describe('GET /info', () => {
     let configProvider: Mocked<ConfigProvider>;
 
     beforeAll(() => {
+        const inject = createInject();
+
         configProvider = inject('ConfigProvider', vi.fn);
 
-        app = createApp();
+        app = createApp(inject);
     });
 
     afterEach(() => {

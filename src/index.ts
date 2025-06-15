@@ -1,6 +1,7 @@
 import swagger from '@elysiajs/swagger';
 import { createApp } from './createApp';
 import { ConfigProvider } from './providers';
+import { createInject } from './plugins/di';
 
 const configProvider = new ConfigProvider();
 const {
@@ -10,7 +11,7 @@ const {
     PORT,
 } = await configProvider.getConfig();
 
-const app = createApp();
+const app = createApp(createInject());
 
 app.use(
     swagger({

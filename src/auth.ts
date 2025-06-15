@@ -1,9 +1,9 @@
 import { Elysia } from 'elysia';
 import { Unauthorized } from './models/api/response';
-import { di } from './plugins/di';
+import { createInject, di } from './plugins/di';
 
 export const auth = new Elysia({ name: 'auth' })
-    .use(di())
+    .use(di(createInject()))
 
     .macro(({ onBeforeHandle }) => ({
         auth(userRole: string) {
